@@ -1,7 +1,7 @@
-import { clientApi } from "../asyncModules.js";
+import { clientApi,plugin } from "../asyncModules.js";
 export const msgDialog = ()=>{
    let dialog=new clientApi.Dialog({
-        title: "正在执行操作",
+        title: plugin.i18n.正在执行操作,
         content: '<div id="custom-dialogContent"></div>',
         width: "90vw",
         destroyCallback: async () => { },

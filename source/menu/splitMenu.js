@@ -1,4 +1,4 @@
-import { kernelApi } from "../asyncModules.js"
+import { kernelApi,clientApi,plugin } from "../asyncModules.js";
 import BlockHandler from "../utils/blockHandler.js";
 
 export const 按标题级别拆分菜单 = (data) => {
@@ -7,7 +7,7 @@ export const 按标题级别拆分菜单 = (data) => {
     for (let i = 1; i <= 6; i++) {
         submenu.push
             ({
-                label: `按${i}级标题拆分`,
+                label: plugin.i18n[`按${i}级标题拆分`],
                 icon: "",
                 click: () => {
                     let { id } = data

@@ -4,7 +4,7 @@ export const 按时间顺序合并所有子文档菜单=(data)=>{
     let {id} = data 
     return [
       {
-        label:"转换所有子文档为标题",
+        label:plugin.i18n.转换所有子文档为标题,
         click:async ()=>{
           await 转换所有子文档为标题(id)
           window.location.reload()
@@ -15,13 +15,13 @@ export const 按时间顺序合并所有子文档菜单=(data)=>{
 export const 合并到上级文档菜单=(data)=>{
     let submenu = []
     submenu.push({
-        label:"合并到父文档(前置)",
+        label:plugin.i18n['合并到父文档(前置)'],
         click:()=>{
             转换文档为上级文档一级标题(data.id)
         }
     })
     submenu.push({
-      label:"合并到父文档(后置)",
+      label:plugin.i18n['合并到父文档(后置)'],
       click:()=>{
           转换文档为上级文档一级标题(data.id,true)
       }
@@ -45,7 +45,7 @@ export async function 转换文档为上级文档一级标题(当前文档id,后
       await 转换文档为目标文档标题(当前文档id, 上级文档id);
     }
   }
-  async function 转换文档为目标文档标题(文档id, 目标文档id) {
+  async function 转换文档为目标文档标题(文档id, 目标文档id,后置) {
     let 目标文档内容 = await kernelApi.getDoc({
       id: 目标文档id,
       size: 102400,

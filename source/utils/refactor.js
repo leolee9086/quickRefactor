@@ -1,4 +1,4 @@
-import { kernelApi } from "../asyncModules.js"
+import { kernelApi,clientApi,plugin } from "../asyncModules.js";
 import { msgDialog } from "../dialogs/megDialog.js"
 export async function 批量转换文档为标题(文档组, 文档id, 后置) {
     //这里为啥要倒一下
