@@ -1,0 +1,29 @@
+{
+  "name": "quickRefactor",
+  "author": "椽承设计",
+  "url": "https://github.com/siyuan-note/quickRefactor",
+  "version": "0.0.1",
+  "minAppVersion": "2.10.0",
+  "backends": ["windows", "linux", "darwin"],
+  "frontends": ["all"],
+  "displayName": {
+    "default": "quickRefactor",
+    "zh_CN": "重构助手"
+  },
+  "description": {
+    "default": "This is a plugin sample",
+    "zh_CN": "这是一个用来重构笔记的插件"
+  },
+  "readme": {
+    "default": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "openCollective": "",
+    "patreon": "",
+    "github": "",
+    "custom": [
+      "https://ld246.com/sponsor"
+    ]
+  }
+}
