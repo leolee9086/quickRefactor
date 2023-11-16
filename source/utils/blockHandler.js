@@ -118,12 +118,18 @@ class BlockHandler {
     this.kernelApi.setBlockAttrs.sync({ id: this.id, attrs: { alias: value } });
   }
   get firstElement() {
-
-    return document.querySelector(
+    try{
+      let elem = document.querySelector(
       `.protyle-wysiwyg [data-node-id="${this.id}"]`
     ) || document.querySelector(
       `div.protyle-title[data-node-id="${this.id}"]`
     ).nextElementSibling
+      return elem
+    }
+    catch(e){
+      return null
+    }
+    
   }
   get type() {
     if (this.firstElement) {
