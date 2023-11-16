@@ -262,7 +262,7 @@ class BlockHandler {
     if (this.type !== "h") {
       return;
     }
-    this.kernelApi.heading2Doc({
+    await this.kernelApi.heading2Doc.sync({
       targetNoteBook: this.box,
       srcHeadingID: this.id,
       targetPath: this.path,
