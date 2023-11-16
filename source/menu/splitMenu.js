@@ -12,7 +12,7 @@ export const 按标题级别拆分菜单 = (data) => {
                 click: () => {
                     let { id } = data
                     let 标题块数组 = kernelApi.sql.sync({
-                        stmt: `select * from blocks where subtype = "h${i}" and root_id = "${id}"`
+                        stmt: `select * from blocks where subtype = "h${i}" and root_id = "${id}" limit 10240`
                     })
                     标题块数组.forEach(标题块 => {
                         let 块操作器 = new BlockHandler(标题块.id)
