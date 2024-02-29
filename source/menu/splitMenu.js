@@ -9,14 +9,14 @@ export const 按标题级别拆分菜单 = (data) => {
             ({
                 label: plugin.i18n[`按${i}级标题拆分`],
                 icon: "",
-                click: () => {
+                click: async () => {
                     let { id } = data
                     let 标题块数组 = kernelApi.sql.sync({
-                        stmt: `select * from blocks where subtype = "h${i}" and root_id = "${id}"`
+                        stmt: `select * from blocks where subtype = "h${i}" and root_id = "${id}" limit 10240`
                     })
-                    标题块数组.forEach(标题块 => {
+                    标题块数组.forEach(async 标题块 => {
                         let 块操作器 = new BlockHandler(标题块.id)
-                        块操作器.toChildDoc()
+                        await 块操作器.toChildDoc()
                     })
                 }
             })
