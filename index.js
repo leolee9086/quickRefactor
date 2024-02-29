@@ -344,6 +344,7 @@ module.exports = class quickRefactor extends ccPlugin {
         await this.菜单控制器.开启拆分菜单()
         await this.菜单控制器.开启合并菜单()
         await this.菜单控制器.开启移动菜单()
+        
     }
 }
 function 获取文件名(moduleURL) {

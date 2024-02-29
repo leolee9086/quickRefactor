@@ -38,17 +38,37 @@ class BlockHandler {
     this._blockCacheTime = null;
 
   }
+  //一个同步请求
+  get _block() {
+    const now = Date.now();
+    if (this._blockCache && now - this._blockCacheTime < 20) {
+      return this._blockCache;
+    }
+    let res = this.kernelApi.SQL.sync({
+      stmt: `select * from blocks where id = '${this.id}' `,
+    })[0];
+    if (res.id) {
+      this._blockCacheTime = now;
+      this._blockCache = res
+      return this._blockCache;
+    } else {
+      return {}
+    }
+  }
   async netImg2LocalAssets() {
     await this.kernelApi.netImg2LocalAssets({ id: this.id })
   }
   get exists() {
     return this.kernelApi.checkBlockExist.sync({ id: this.id })
   }
+  get markdown() {
+    return this._block.markdown
+  }
   get content() {
-    return this.exists ? this._block.content : undefined;
+    return this._block.content
   }
   get path() {
-    return this.exists ? this._block.path : undefined;
+    return this._block.path
   }
   get root() {
     return this.exists ? new BlockHandler(this.kernelApi.getBlockInfo.sync({ id: this.id }).rootID) : undefined;
@@ -87,7 +107,6 @@ class BlockHandler {
           // this.applyStyleToDOM();
           return true;
         },
-
       }
       )
     } else {
@@ -138,30 +157,14 @@ class BlockHandler {
     )
     return blockElements
   }
-
-
   baseAttrs = ["id", "type", "subtype"];
-  //一个同步请求
-  get _block() {
-    const now = Date.now();
-    if (this._blockCache && now - this._blockCacheTime < 20) {
-      return this._blockCache;
-    }
 
-    this._blockCache = this.kernelApi.SQL.sync({
-      stmt: `select * from blocks where id = '${this.id}' `,
-    })[0];
-    this._blockCacheTime = now;
-
-    return this._blockCache;
-  }
   get _parent() {
     return this.kernelApi.SQL.sync({
       stmt: `select * from blocks where id in (select parent_id from blocks where id =  '${this.id}') `,
     })[0];
 
   }
-
   async removeRoot() {
     this.kernelApi.removeDoc({
       notebook: this._block.box,
@@ -234,23 +237,33 @@ class BlockHandler {
       ""
     );
   }
-  async moveDocTo(targetID) {
-    this.refresh();
+  async moveDocTo(targetID, toboxRoot) {
+
     let { path: fromPath, box: fromNotebook } = await this.kernelApi.获取文档(
       { id: this.id, size: 102400 },
       ""
     );
-    let {
-      path: toPath,
-      box: toNotebook,
-      rootID,
-    } = await this.kernelApi.获取文档({ id: targetID, size: 102400 }, "");
-    await this.kernelApi.批量移动文档({
-      fromPaths: [fromPath],
-      fromNotebook,
-      toPath,
-      toNotebook,
-    });
+    if (!toboxRoot) {
+      let {
+        path: toPath,
+        box: toNotebook,
+        rootID,
+      } = await this.kernelApi.获取文档({ id: targetID, size: 102400 }, "");
+      await this.kernelApi.批量移动文档({
+        fromPaths: [fromPath],
+        fromNotebook,
+        toPath,
+        toNotebook,
+      });
+    }else{
+      await this.kernelApi.批量移动文档({
+        fromPaths: [fromPath],
+        fromNotebook,
+        toPath:'/',
+        toNotebook:targetID,
+      });
+    }
+    
   }
   async toChildDoc() {
     if (this.type !== "h") {
@@ -332,7 +345,7 @@ class BlockHandler {
         })
     }
   }
-  async append() {
+  async append(content, type) {
     if (!this.exists) {
       return
     }
@@ -453,7 +466,6 @@ function geTimeStamp() {
   let hour = date.getHours().toString().padStart(2, '0');
   let minute = date.getMinutes().toString().padStart(2, '0');
   let second = date.getSeconds().toString().padStart(2, '0');
-
   let timestamp = `${year}${month}${day}${hour}${minute}${second}`;
   return timestamp
 }
