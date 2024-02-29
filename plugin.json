@@ -2,7 +2,7 @@
   "name": "quickRefactor",
   "author": "椽承设计",
   "url": "https://github.com/leolee9086/quickRefactor",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "minAppVersion": "2.10.0",
   "backends": ["windows", "linux", "darwin"],
   "frontends": ["all"],
