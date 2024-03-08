@@ -1,7 +1,9 @@
-import { kernelApi, plugin } from "../asyncModules.js";
+import { kernelApi, plugin, clientApi } from "../asyncModules.js";
 import { 按标题级别拆分菜单 } from './splitMenu.js'
 import { 合并到上级文档菜单, 按时间顺序合并所有子文档菜单 } from "./mergeMenu.js";
 import BlockHandler from "../utils/blockHandler.js";
+import { defineBlockList, getSqlTargetDefine, getSuitableDocIDUsingAI } from "../utils/blockListDefine.js";
+
 let { eventBus } = plugin
 export function 开启拆分菜单() {
     eventBus.on('click-editortitleicon', async (e) => {
@@ -87,7 +89,28 @@ export function 开启移动菜单() {
         // 创建按一级到六级标题拆分的菜单项
         menu.addItem({
             'label': "移动到最近文档",
-            'submenu': recentDocs.map(
+            'submenu':[{
+                label: "AI辅助判断",
+                icon:"iconSparkles",
+                click: async () => {
+                    let content = kernelApi.exportMdContent.sync({ id: data.id })
+                    content.id = data.id
+                    let blocks = kernelApi.getRecentDocs.sync()
+                    let suitableDoc=  await getSuitableDocIDUsingAI(content, blocks)
+                    await clientApi.confirm(
+                        "确认移动?",
+                        `AI认为,这个文档最适合移动到${suitableDoc.targets[0].title},理由如下:\n
+                        ${suitableDoc.reason}
+                        \n是否确认?`,
+                        async () => {
+                            new BlockHandler(data.id).moveDocTo(suitableDoc.targets[0].rootID)
+
+                        },
+                        () => {
+                        }
+                    );
+                }
+            }].concat( recentDocs.map(
                 item => {
                     return {
                         label: `移动文档到${item.title}`,
@@ -97,10 +120,59 @@ export function 开启移动菜单() {
                     }
                 }
             )
+                
+            )
         })
+       getSqlTargetDefine().forEach(
+            block => {
+                menu.addItem(
+                    {
+                        'label': "移动到命名块列表:" + block.name,
+                        'submenu': [{
+                            label: "AI辅助判断",
+                            click: async () => {
+                                let content = kernelApi.exportMdContent.sync({ id: data.id })
+                                content.id = block.id
+                                let blocks = block.data.map(
+                                    item=>{
+                                        return {
+                                            rootID:item.root_id,
+                                            title:item.name||item.content.slice(0,16),
+                                            content:item.content.slice(0,300)
+                                        }
+                                    }
+                                )
+                                let suitableDoc=  await getSuitableDocIDUsingAI(content, blocks.slice(0,64))
+                                await clientApi.confirm(
+                                    "确认移动?",
+                                    `AI认为,这个文档最适合移动到${suitableDoc.targets[0].title}所在目录,理由如下:\n
+                                    ${suitableDoc.reason}
+                                    \n是否确认?`,
+                                    async () => {
+                                        new BlockHandler(data.id).moveDocTo(suitableDoc.targets[0].rootID)
+                                    },
+                                    () => {
+                                    }
+                                );
+                            }
+                        }].concat(block.data.map(
+                            item => {
+                                return {
+
+                                    label: `移动文档到${item.name || item.content.split(0, 16)}`,
+                                    click: () => {
+                                        new BlockHandler(block.id).moveDocTo(item.rootID)
+                                    }
+                                }
+                            }
+                        ))
+                    }
+                )
+            }
+        )
+     
     })
     eventBus.on('click-blockicon', (e) => {
-        console.log(e)
         const { blockElements, menu, protyle } = e.detail
         let blockRefIds = []
         blockElements.forEach(
@@ -130,14 +202,14 @@ export function 开启移动菜单() {
         let queryResult = kernelApi.sql.sync({ stmt: sql });
         menu.addItem(
             {
-                label:"将块引目标文档移入",
-                submenu:queryResult.filter(ref=>{
-                    return ref.def_block_root_id!==ref.root_id
+                label: "将块引目标文档移入",
+                submenu: queryResult.filter(ref => {
+                    return ref.def_block_root_id !== ref.root_id
                 }).map(
-                    ref=>{
-                        return  {
-                            label:`将${ref.content}指向的文档移动到子文档`,
-                            click:()=>{
+                    ref => {
+                        return {
+                            label: `将${ref.content}指向的文档移动到子文档`,
+                            click: () => {
                                 new BlockHandler(ref.def_block_root_id).moveDocTo(ref.root_id)
                             }
                         }
