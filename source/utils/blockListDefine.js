@@ -32,7 +32,7 @@ export async function getSuitableDocIDUsingAI(docContent, targets) {
 role:"system",
 content:`
 你是一个文档分类助手,工作是根据提供的文档内容和分类目标
-你必须从所有分类目标中找到与提供的文档内容最接近的笔记id并以指定格式返回
+你必须从所有分类目标中找到与提供的文档内容最接近的笔记并以指定格式返回
 你必须严格遵守以下要求:
 
 ## 文档内容
@@ -60,7 +60,7 @@ AIMessageAttach的格式如下:
 
 \`\`\`AIMessageAttach
 {
-    "moveTarget":<最合适的移动目标数组,必须从queriedNotes数组中选取一项到三项>
+    "moveTarget":<最合适的移动目标ID数组,必须从queriedNotes数组中选取一项到三项的**rootID**>
 }
 \`\`\`
 `
@@ -105,7 +105,10 @@ ${docContent.content}
         // 在targets中查找与推荐标题最匹配的文档ID
         const suitableDoc = targets.filter(
             item=>{
-                return recommendedTitles.indexOf(item.rootID)>-1
+                console.log(item,recommendedTitles)
+                return recommendedTitles.indexOf(item.rootID)>-1||recommendedTitles.find(target=>{
+                    return target.rootID===item.rootID
+                })
             }
         )
 
