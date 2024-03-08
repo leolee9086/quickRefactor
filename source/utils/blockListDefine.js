@@ -55,9 +55,9 @@ content:`
 
 ## 回复格式
 你必须将最合适的目标id添加到回复的AIMessageAttach的moveTarget字段中,并在回复正文以100字以内说明你的理由,
-AIMessageAttach必须以JSON代码块的形式添加在标准markdown格式的回复最后,
+AIMessageAttach必须以代码块的形式添加在标准markdown格式的回复最后,
 你必须要严格按照内容主题的匹配程度来选择分类目标,不能随意选择
-AIMessageAttach的格式如下:
+AIMessageAttach的格式为标准JSON字符串,如下所示:
 
 \`\`\`AIMessageAttach
 {

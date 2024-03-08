@@ -94,6 +94,7 @@ export function 开启移动菜单() {
                 icon: "iconSparkles",
                 click: async () => {
                     let content = kernelApi.exportMdContent.sync({ id: data.id })
+                    content.content=data.name+"\n"+content.content.trim()
                     content.id = data.id
                     let blocks = kernelApi.getRecentDocs.sync()
                     let suitableDoc = await getSuitableDocIDUsingAI(content, blocks)
@@ -133,7 +134,8 @@ export function 开启移动菜单() {
                             label: "AI辅助判断",
                             click: async () => {
                                 let content = kernelApi.exportMdContent.sync({ id: data.id })
-                                content.id = block.id
+                                content.content=data.name+"\n"+content.content.trim()
+                                content.id = data.id
                                 let blocks = block.data.map(
                                     item => {
                                         return {
