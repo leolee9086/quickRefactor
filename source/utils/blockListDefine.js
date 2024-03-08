@@ -69,7 +69,7 @@ AIMessageAttach的格式如下:
     role:"user",
     content:`
 待分类的文档内容是:
-${docContent.content}
+${docContent.content.slice(0,1024)}
 
 \`\`\`UserMessageAttach
 {queriedNotes:${JSON.stringify(targets.filter(item=>{return item.rootID!==docContent.id}))}}
