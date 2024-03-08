@@ -56,11 +56,12 @@ content:`
 ## 回复格式
 你必须将最合适的目标id添加到回复的AIMessageAttach的moveTarget字段中,并在回复正文以100字以内说明你的理由,
 AIMessageAttach必须以JSON代码块的形式添加在标准markdown格式的回复最后,
+你必须要严格按照内容主题的匹配程度来选择分类目标,不能随意选择
 AIMessageAttach的格式如下:
 
 \`\`\`AIMessageAttach
 {
-    "moveTarget":<最合适的移动目标ID数组,必须从queriedNotes数组中选取一项到三项的**rootID**>
+    "moveTarget":<最合适的移动目标ID数组,必须从queriedNotes数组中,根据内容的匹配程度选取1个到3个最合适目标的**rootID**>
 }
 \`\`\`
 `
@@ -113,7 +114,7 @@ ${docContent.content.slice(0,1024)}
         )
 
         if (suitableDoc) {
-            console.log(`找到推荐的文档ID: ${suitableDoc}`);
+            console.log(`找到推荐的文档ID:` ,suitableDoc);
             return {targets:suitableDoc,reason:data.choices[0].message.content.split(`\`\`\`AIMessageAttach`)[0]};
         } else {
             console.log("没有找到合适的文档ID");
