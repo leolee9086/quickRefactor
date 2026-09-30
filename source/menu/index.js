@@ -184,7 +184,13 @@ export function 开启移动菜单() {
                      //这个sql只能够选择到直接定义在块内部的refs,如果是容器块就失效了,所以我们需要用获取块DOM的方式来完成这个任务
                      stmt:`select * from refs where block_id = "${element.getAttribute('data-node-id')}"`
                  })*/
-                let blockDOM = kernelApi.getDoc.sync({ id: element.getAttribute('data-node-id') }).content
+                // getDoc 在块不存在或请求失败时可能返回 null/undefined（如思源 3.8.6+），
+                // 直接读取 .content 会抛出未捕获异常，中断块标菜单渲染并导致块拖拽失效，这里需要先判空
+                let doc = kernelApi.getDoc.sync({ id: element.getAttribute('data-node-id') })
+                if (!doc || !doc.content) {
+                    return
+                }
+                let blockDOM = doc.content
                 const div = document.createElement('div')
                 div.innerHTML = blockDOM
                 Array.from(div.querySelectorAll('span[data-type="block-ref"]')).forEach(
@@ -196,13 +202,18 @@ export function 开启移动菜单() {
             }
         )
         let uniqueBlockRefIds = [...new Set(blockRefIds)];
+        // 没有任何块引用时直接返回，否则会拼出 WHERE 为空的非法 SQL，查询失败同样会导致菜单渲染中断
+        if (!uniqueBlockRefIds.length) {
+            return
+        }
         // 为每个ID构建一个查询条件，并使用OR连接
         let conditions = uniqueBlockRefIds.map(id => `def_block_id = "${id}"`).join(" OR ");
         // 构建SQL查询
         let sql = `SELECT * FROM refs WHERE ${conditions}`;
         // 执行SQL查询
         // 注意：这里假设你有一个执行SQL的函数。根据你的环境，这可能需要异步处理或其他API调用。
-        let queryResult = kernelApi.sql.sync({ stmt: sql });
+        // 查询失败时返回 undefined，兜底为空数组避免后续 filter 抛错
+        let queryResult = kernelApi.sql.sync({ stmt: sql }) || [];
         menu.addItem(
             {
                 label: "将块引目标文档移入",
